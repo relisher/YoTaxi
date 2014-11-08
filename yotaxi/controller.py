@@ -3,13 +3,17 @@ from flask import request, render_template
 from API_KEY import api_token
 import requests
 
+# Yo api end point url
 YO_API = "https://api.justyo.co/yo/"
 
 
 def get_stand_ref(lat, lon):
     """Get taxi stand's reference within 20 miles"""
-    url_places = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={0},{1}&radius=20000&types=%7Ctaxi_stand&sensor=false&key=AIzaSyCej3iRHphjKOGUxNq0j2bk129bym0sAHY".format(
-        lat, lon)
+
+    url_places = "https://maps.googleapis.com/maps/api/place/nearbysearch \
+    /json?location={0},{1}&radius=20000&types=%7Ctaxi_stand&sensor=false& \
+    key=AIzaSyCej3iRHphjKOGUxNq0j2bk129bym0sAHY".format(lat, lon)
+
     r = requests.get(url_places)
     try:
         for i in r.json()['results']:
@@ -22,9 +26,12 @@ def get_stand_ref(lat, lon):
 
 
 def get_phone_number(ref):
-    """Get a taxi stands number from reference"""
-    url_num = "https://maps.googleapis.com/maps/api/place/details/json?key=AIzaSyCej3iRHphjKOGUxNq0j2bk129bym0sAHY&sensor=false&reference={0}".format(
-        ref)
+    """Get a taxi stand's number from reference"""
+
+    url_num = "https://maps.googleapis.com/maps/api/place/details/json? \
+    key=AIzaSyCej3iRHphjKOGUxNq0j2bk129bym0sAHY&sensor=false&reference= \
+    {0}".format(ref)
+
     r = requests.get(url_num)
     try:
         return r.json()['result']['formatted_phone_number']
@@ -33,9 +40,12 @@ def get_phone_number(ref):
 
 
 def get_stand_name(ref):
-    """Get stands name"""
-    url_num = "https://maps.googleapis.com/maps/api/place/details/json?key=AIzaSyCej3iRHphjKOGUxNq0j2bk129bym0sAHY&sensor=false&reference={0}".format(
-        ref)
+    """Get stand name"""
+
+    url_num = "https://maps.googleapis.com/maps/api/place/details/json? \
+    key=AIzaSyCej3iRHphjKOGUxNq0j2bk129bym0sAHY&sensor=false&reference= \
+    {0}".format(ref)
+
     r = requests.get(url_num)
     try:
         return r.json()['result']['name']
@@ -81,6 +91,7 @@ def yo():
     username = request.args.get('username')
     location = request.args.get('location')
     splitted = location.split(';')
+    # Parse latitude and longitude from request params
     latitude = splitted[0]
     longitude = splitted[1]
     stand_ref = get_stand_ref(latitude, longitude)
