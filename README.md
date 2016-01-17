@@ -1,6 +1,6 @@
-YoTaxi
+YOUBER
 ======
 
-Yo your location to get the number of nearest taxi stand. Add `YOTAXISTAND` in your contacts and YO it when you are in need of a Taxi.
+Yo your location to call an Uber. Add `YOMEUBER` in your contacts and YO it when you are in need of an Uber.
 
 

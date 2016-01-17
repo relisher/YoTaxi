@@ -1,56 +1,13 @@
-from yotaxi import app
-from flask import request, render_template
+from flask import request, render_template, Flask
 from API_KEY import api_token
+from API_KEY import google_key
+import json
 import requests
 
 # Yo api end point url
 YO_API = "https://api.justyo.co/yo/"
+app = Flask(__name__)
 
-
-def get_stand_ref(lat, lon):
-    """Get taxi stand's reference within 20 miles"""
-
-    url_places = "https://maps.googleapis.com/maps/api/place/nearbysearch \
-    /json?location={0},{1}&radius=20000&types=%7Ctaxi_stand&sensor=false& \
-    key=AIzaSyCej3iRHphjKOGUxNq0j2bk129bym0sAHY".format(lat, lon)
-
-    r = requests.get(url_places)
-    try:
-        for i in r.json()['results']:
-            stand_open = i['opening_hours']['open_now']
-            if stand_open:
-                return i['reference']
-                break
-    except KeyError:
-        return r.json()['results'][0]['reference']
-
-
-def get_phone_number(ref):
-    """Get a taxi stand's number from reference"""
-
-    url_num = "https://maps.googleapis.com/maps/api/place/details/json? \
-    key=AIzaSyCej3iRHphjKOGUxNq0j2bk129bym0sAHY&sensor=false&reference= \
-    {0}".format(ref)
-
-    r = requests.get(url_num)
-    try:
-        return r.json()['result']['formatted_phone_number']
-    except KeyError:
-        return None
-
-
-def get_stand_name(ref):
-    """Get stand name"""
-
-    url_num = "https://maps.googleapis.com/maps/api/place/details/json? \
-    key=AIzaSyCej3iRHphjKOGUxNq0j2bk129bym0sAHY&sensor=false&reference= \
-    {0}".format(ref)
-
-    r = requests.get(url_num)
-    try:
-        return r.json()['result']['name']
-    except KeyError:
-        return None
 
 
 def send_yo(username, link):
@@ -75,16 +32,6 @@ def handle_error(e):
 def noresult():
     return render_template('noresult.html')
 
-
-@app.route('/response')
-def response():
-    taxi_number = request.args.get('msg')
-    stand_name = request.args.get('name')
-    return render_template('response.html',
-                           phone_number=taxi_number,
-                           stand_name=stand_name)
-
-
 @app.route('/yo')
 def yo():
     """Handle callback request"""
@@ -94,13 +41,12 @@ def yo():
     # Parse latitude and longitude from request params
     latitude = splitted[0]
     longitude = splitted[1]
-    stand_ref = get_stand_ref(latitude, longitude)
-    stand_name = get_stand_name(stand_ref)
-    num = get_phone_number(stand_ref)
-    if num is None:
-        send_yo(username, 'http://yo-taxi.herokuapp.com/noresult')
+    if latitude is None:
+        send_yo(username, 'http://www.google.com/teapot')
     else:
-        link = "http://yo-taxi.herokuapp.com/response?msg={0}&name={1}".format(
-            num, stand_name)
-        send_yo(username, link)
+	link = "uber://?action=setPickup&pickup[latitude]={0}&pickup[longitude]={1}
+	send_yo(username, link)
     return 'OK'
+
+if __name__ == '__main__':
+    app.run()
